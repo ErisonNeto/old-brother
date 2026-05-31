@@ -232,9 +232,96 @@ export default function App() {
 }
 
 function Login({ onLogin }) {
-  const [email, setEmail] = useState('admin@oldbrother.local'), [pin, setPin] = useState(''), [error, setError] = useState(''), [loading, setLoading] = useState(false)
-  const submit = async (e) => { e.preventDefault(); setLoading(true); setError(''); try { onLogin(await api('/auth/login', { method:'POST', body:JSON.stringify({ email, pin }), auth:false })) } catch (err) { setError(err.message) } finally { setLoading(false) } }
-  return <main className="login-screen"><section className="login-hero"><p className="eyebrow">Old Brother</p><h1>Operação completa para hamburgueria</h1><p>Mesas por QR Code, pedidos reais no backend, cozinha, caixa, estoque, faturamento e relatórios em Excel.</p><div className="login-grid"><Card><strong>Back-end real</strong><span>Node.js + Supabase</span></Card><Card><strong>Operação ao vivo</strong><span>Pedidos e mesas sincronizados</span></Card><Card><strong>Pronto para deploy</strong><span>Front + API separados</span></Card></div></section><Card className="login-box"><div className="login-box-head"><p className="eyebrow">Acesso seguro</p><h2>Acesso operacional</h2><p>Entre para gerenciar a operação da Old Brother.</p></div><form onSubmit={submit} className="login-form"><Field label="E-mail"><input value={email} onChange={e=>setEmail(e.target.value)} /></Field><Field label="PIN"><input type="password" value={pin} onChange={e=>setPin(e.target.value)} placeholder="Digite seu PIN" /></Field>{error && <p className="error">{error}</p>}<Button className="full" disabled={loading}>{loading ? 'Entrando...' : 'Entrar no sistema'}</Button></form><div className="pin-list"><span>admin@oldbrother.local</span><span>PIN: 1234</span></div></Card></main>
+  const [email, setEmail] = useState('')
+  const [pin, setPin] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const submit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    try {
+      const data = await api('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, pin }),
+        auth: false,
+      })
+
+      onLogin(data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <main className="login-screen official-login">
+      <section className="login-hero official-login-hero">
+        <div className="login-brand-lockup">
+          <div className="login-logo-mark">OB</div>
+
+          <div>
+            <span className="login-company">OLD BROTHER</span>
+            <strong>Sistema Administrativo</strong>
+          </div>
+        </div>
+
+        <div className="login-copy">
+          <p className="eyebrow">Gestão operacional</p>
+          <h1>Controle interno da hamburgueria</h1>
+          <p>
+            Plataforma de acesso restrito para gestão de pedidos, mesas,
+            estoque, caixa e relatórios da operação.
+          </p>
+        </div>
+
+        <div className="login-system-badge">
+          <span>Ambiente</span>
+          <strong>Painel operacional</strong>
+        </div>
+      </section>
+
+      <Card className="login-box official-login-box">
+        <div className="login-box-head">
+          <p className="eyebrow">Acesso restrito</p>
+          <h2>Entrar no sistema</h2>
+          <p>Informe suas credenciais para continuar.</p>
+        </div>
+
+        <form onSubmit={submit} className="login-form">
+          <Field label="E-mail">
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu@email.com"
+              autoComplete="email"
+            />
+          </Field>
+
+          <Field label="PIN">
+            <input
+              type="password"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              placeholder="Digite seu PIN"
+              autoComplete="current-password"
+            />
+          </Field>
+
+          {error && <p className="error">{error}</p>}
+
+          <Button className="full" disabled={loading}>
+            {loading ? 'Validando acesso...' : 'Acessar painel'}
+          </Button>
+        </form>
+
+        <p className="login-footer-note">Uso exclusivo da equipe autorizada.</p>
+      </Card>
+    </main>
+  )
 }
 
 function Shell({ children, user, page, setPage, onLogout }) {

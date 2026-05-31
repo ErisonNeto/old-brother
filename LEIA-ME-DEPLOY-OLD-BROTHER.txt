@@ -1,0 +1,20 @@
+Old Brother - pacote atualizado
+
+Alterações incluídas:
+- Tela inicial/login com visual mais institucional e limpo.
+- Removidos textos de demonstração como Back-end real, Operação ao vivo, Pronto para deploy, e credenciais visíveis.
+- Mantida a correção de usuários: editar cargo, reativar, desativar e excluir definitivamente.
+- Removidos vercel.json da raiz e do frontend para evitar conflito com as configurações feitas pela interface da Vercel.
+- Removidos package-lock.json antigos com registry interno e adicionados .npmrc com registry público do npm.
+
+Configuração recomendada na Vercel:
+Root Directory: frontend
+Framework Preset: Vite
+Install Command: npm install --registry=https://registry.npmjs.org/ --no-audit --no-fund
+Build Command: npm run build
+Output Directory: dist
+
+Configuração recomendada no Render:
+Root Directory: backend
+Build Command: npm install --registry=https://registry.npmjs.org/ --no-audit --no-fund
+Start Command: npm start
