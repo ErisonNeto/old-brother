@@ -2277,3 +2277,701 @@ p {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   V14 — Cardápio delivery em fluxo WhatsMenu + responsividade
+   ========================================================= */
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+body {
+  overflow-wrap: anywhere;
+}
+
+.card,
+.list-item,
+.order-card,
+.pay-card,
+.table-card,
+.menu-card,
+.wm-item {
+  max-width: 100%;
+}
+
+.whatsmenu-page {
+  padding-bottom: 112px;
+}
+
+.wm-menu-list-full {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.wm-item {
+  cursor: pointer;
+  grid-template-columns: minmax(0, 1fr) 48px;
+}
+
+.wm-item:hover {
+  border-color: rgba(36, 20, 13, 0.18);
+  transform: translateY(-1px);
+}
+
+.wm-item-top h3,
+.wm-item p {
+  overflow-wrap: anywhere;
+}
+
+.wm-checkout-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  z-index: 80;
+  width: min(680px, calc(100% - 28px));
+  transform: translateX(-50%);
+  filter: drop-shadow(0 20px 38px rgba(36, 20, 13, 0.28));
+}
+
+.wm-checkout-bar button {
+  width: 100%;
+  min-height: 64px;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  border-radius: 22px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #24140d, #3b2418 64%, #5a3825);
+  color: #fff8ee;
+  text-align: left;
+}
+
+.wm-checkout-count {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: #f0dfc2;
+  color: #24140d;
+  font-weight: 1000;
+}
+
+.wm-checkout-title {
+  display: block;
+  min-width: 0;
+  font-weight: 1000;
+  letter-spacing: -0.02em;
+}
+
+.wm-checkout-bar strong {
+  color: #dcc29a;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.wm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(10, 5, 3, 0.58);
+  backdrop-filter: blur(8px);
+}
+
+.wm-product-modal,
+.wm-checkout-sheet {
+  width: min(560px, 100%);
+  max-height: min(92vh, 820px);
+  overflow: auto;
+  border: 1px solid rgba(36, 20, 13, 0.1);
+  border-radius: 28px;
+  background: #fffaf3;
+  color: #24140d;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.34);
+}
+
+.wm-product-modal {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+}
+
+.wm-product-head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding-right: 42px;
+}
+
+.wm-product-head h2,
+.wm-sheet-head h2 {
+  margin: 2px 0 6px;
+  color: #24140d;
+  font-size: clamp(26px, 4vw, 34px);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.wm-product-head strong {
+  color: #5a3825;
+  font-size: 20px;
+}
+
+.wm-product-emoji {
+  width: 60px;
+  height: 60px;
+  flex: 0 0 60px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: #24140d;
+  color: #fff8ee;
+  font-size: 26px;
+}
+
+.wm-product-description {
+  margin: 0;
+  color: rgba(36, 20, 13, 0.68);
+  line-height: 1.55;
+}
+
+.wm-product-modal .field span,
+.wm-checkout-sheet .field span {
+  color: #5a3825;
+}
+
+.wm-product-modal textarea,
+.wm-checkout-sheet input,
+.wm-checkout-sheet textarea,
+.wm-product-modal textarea {
+  border-color: rgba(36, 20, 13, 0.12);
+  background: #fff;
+  color: #24140d;
+}
+
+.wm-close,
+.wm-back {
+  border: 0;
+  background: rgba(36, 20, 13, 0.08);
+  color: #24140d;
+  font-weight: 1000;
+}
+
+.wm-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  font-size: 24px;
+}
+
+.wm-product-actions {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.wm-product-actions .btn,
+.wm-checkout-sheet .btn.full {
+  width: 100%;
+  background: #24140d;
+  color: #fff8ee;
+}
+
+.wm-product-qty {
+  border-color: rgba(36, 20, 13, 0.1);
+  background: rgba(36, 20, 13, 0.06);
+}
+
+.wm-product-qty button,
+.wm-checkout-sheet .qty-actions button {
+  background: #24140d;
+  color: #fff8ee;
+}
+
+.wm-product-qty b,
+.wm-checkout-sheet .qty-actions b {
+  color: #24140d;
+}
+
+.wm-checkout-sheet {
+  position: relative;
+  width: min(520px, 100%);
+  padding: 0;
+}
+
+.wm-sheet-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  gap: 12px;
+  align-items: center;
+  padding: 18px;
+  border-bottom: 1px solid rgba(36, 20, 13, 0.08);
+  background: rgba(255, 250, 243, 0.95);
+  backdrop-filter: blur(12px);
+}
+
+.wm-sheet-head .wm-close {
+  position: static;
+}
+
+.wm-back {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  font-size: 20px;
+}
+
+.wm-flow-progress {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 12px 18px 0;
+}
+
+.wm-flow-progress span {
+  min-height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(36, 20, 13, 0.06);
+  color: rgba(36, 20, 13, 0.58);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.wm-flow-progress span.active {
+  background: #24140d;
+  color: #fff8ee;
+}
+
+.wm-sheet-body {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.wm-checkout-list {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-checkout-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(36, 20, 13, 0.08);
+  border-radius: 18px;
+  background: #fff;
+}
+
+.wm-checkout-item strong,
+.wm-checkout-item span,
+.wm-checkout-item small {
+  display: block;
+}
+
+.wm-checkout-item strong {
+  color: #24140d;
+  line-height: 1.25;
+}
+
+.wm-checkout-item span,
+.wm-checkout-item small {
+  margin-top: 4px;
+  color: rgba(36, 20, 13, 0.58);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.wm-remove {
+  grid-column: 1 / -1;
+  justify-self: start;
+  border: 0;
+  background: transparent;
+  color: #b45309;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.wm-delivery-choice,
+.wm-payment-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wm-payment-options {
+  grid-template-columns: 1fr;
+}
+
+.wm-delivery-choice button,
+.wm-payment-options button {
+  display: grid;
+  gap: 4px;
+  min-height: 74px;
+  border: 1px solid rgba(36, 20, 13, 0.1);
+  border-radius: 18px;
+  padding: 12px;
+  background: #fff;
+  color: #24140d;
+  text-align: left;
+}
+
+.wm-delivery-choice button.active,
+.wm-payment-options button.active {
+  border-color: #24140d;
+  background: #24140d;
+  color: #fff8ee;
+}
+
+.wm-delivery-choice button span,
+.wm-payment-options button span {
+  color: rgba(36, 20, 13, 0.58);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.wm-delivery-choice button.active span,
+.wm-payment-options button.active span {
+  color: rgba(255, 248, 238, 0.72);
+}
+
+.wm-sheet-form {
+  margin: 0;
+}
+
+.wm-sheet-summary {
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid rgba(36, 20, 13, 0.08);
+  border-radius: 18px;
+  background: #fff;
+}
+
+.wm-sheet-summary .row {
+  padding: 12px 14px;
+  border-color: rgba(36, 20, 13, 0.08);
+}
+
+.wm-sheet-summary .row:last-child {
+  background: rgba(36, 20, 13, 0.04);
+  font-size: 18px;
+}
+
+.wm-review-card {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 22px;
+  border-radius: 22px;
+  background: rgba(37, 211, 102, 0.10);
+  text-align: center;
+}
+
+.wm-review-card span {
+  font-size: 34px;
+}
+
+.wm-review-card h3,
+.wm-review-card p {
+  margin: 0;
+}
+
+.wm-review-card h3 {
+  color: #24140d;
+  font-size: 24px;
+  letter-spacing: -0.04em;
+}
+
+.wm-review-card p {
+  max-width: 360px;
+  color: rgba(36, 20, 13, 0.64);
+  line-height: 1.45;
+}
+
+.compact-review .wm-checkout-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.wm-whatsapp-button,
+.wm-checkout-sheet .wm-whatsapp-button.full {
+  background: #25d366;
+  color: #07180d;
+}
+
+/* Responsividade geral — sem quebrar desktop */
+@media (max-width: 1180px) {
+  .content {
+    padding: clamp(14px, 2vw, 24px);
+  }
+
+  .grid-main {
+    grid-template-columns: 1fr;
+  }
+
+  .filters,
+  .toolbar,
+  .cashier-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .grid2,
+  .kpis,
+  .product-grid,
+  .qr-grid,
+  .promo-strip,
+  .delivery-product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-head,
+  .between,
+  .list-item,
+  .pay-card .between,
+  .order-card .between {
+    display: grid;
+    align-items: start;
+  }
+
+  .wm-menu-list-full {
+    max-width: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .whatsmenu-page {
+    width: min(100% - 16px, 620px);
+    padding-bottom: 98px;
+  }
+
+  .wm-hero {
+    margin-top: 8px;
+  }
+
+  .wm-hero h1 {
+    font-size: 34px;
+  }
+
+  .wm-brand-card {
+    align-items: flex-start;
+  }
+
+  .wm-search-card {
+    top: 6px;
+    padding: 10px;
+  }
+
+  .wm-category-tabs {
+    gap: 6px;
+  }
+
+  .wm-category-tabs button {
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+
+  .wm-section-title h2 {
+    font-size: 22px;
+  }
+
+  .wm-item {
+    grid-template-columns: minmax(0, 1fr) 42px;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .wm-item h3 {
+    font-size: 17px;
+  }
+
+  .wm-item p {
+    font-size: 13px;
+  }
+
+  .wm-add-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+  }
+
+  .wm-modal-backdrop {
+    align-items: end;
+    padding: 0;
+  }
+
+  .wm-product-modal,
+  .wm-checkout-sheet {
+    width: 100%;
+    max-height: 92vh;
+    border-radius: 26px 26px 0 0;
+  }
+
+  .wm-product-modal {
+    padding: 18px;
+  }
+
+  .wm-product-actions,
+  .wm-delivery-choice,
+  .wm-payment-options,
+  .wm-sheet-form,
+  .delivery-form,
+  .filters,
+  .toolbar,
+  .cashier-toolbar,
+  .form-grid,
+  .customer-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-checkout-bar {
+    bottom: 10px;
+    width: calc(100% - 18px);
+  }
+
+  .wm-checkout-bar button {
+    min-height: 60px;
+    border-radius: 20px;
+    padding: 10px 12px;
+  }
+
+  .wm-checkout-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wm-checkout-item .qty-actions {
+    justify-self: start;
+  }
+
+  .wm-remove {
+    grid-column: auto;
+  }
+
+  .table-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .main-nav {
+    padding-bottom: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar,
+  .content,
+  .customer,
+  .login-screen {
+    padding: 10px;
+  }
+
+  .brand strong,
+  .topbar strong {
+    max-width: 210px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .topbar {
+    display: grid;
+    gap: 12px;
+  }
+
+  .title h1,
+  .customer-head h1 {
+    font-size: 28px;
+  }
+
+  .wm-logo {
+    width: 52px;
+    height: 52px;
+    flex-basis: 52px;
+    border-radius: 16px;
+    font-size: 20px;
+  }
+
+  .wm-hero h1 {
+    font-size: 30px;
+  }
+
+  .wm-hero p:not(.eyebrow) {
+    font-size: 14px;
+  }
+
+  .wm-item-top {
+    display: grid;
+    gap: 5px;
+  }
+
+  .wm-item strong {
+    justify-self: start;
+  }
+
+  .wm-checkout-bar button {
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    gap: 9px;
+  }
+
+  .wm-checkout-count {
+    width: 38px;
+    height: 38px;
+  }
+
+  .wm-checkout-bar strong {
+    font-size: 15px;
+  }
+
+  .wm-product-head {
+    display: grid;
+    padding-right: 44px;
+  }
+
+  .wm-flow-progress {
+    gap: 5px;
+    padding-inline: 12px;
+  }
+
+  .wm-flow-progress span {
+    min-height: 30px;
+    font-size: 11px;
+  }
+
+  .wm-sheet-head,
+  .wm-sheet-body {
+    padding: 14px;
+  }
+
+  .wm-product-head h2,
+  .wm-sheet-head h2 {
+    font-size: 26px;
+  }
+
+  input,
+  select,
+  textarea,
+  .btn {
+    min-height: 46px;
+  }
+}
