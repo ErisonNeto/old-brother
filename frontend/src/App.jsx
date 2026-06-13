@@ -285,6 +285,13 @@ function productEmoji(product = {}) {
   if (haystack.includes('combo') || haystack.includes('promo')) return '🍔🔥'
   return '🍔'
 }
+function categoryShort(category = '') {
+  const text = String(category || 'OB').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim()
+  if (!text) return 'OB'
+  const parts = text.split(/\s+/).filter(Boolean)
+  if (parts.length > 1) return parts.slice(0, 2).map(part => part[0]).join('').toUpperCase()
+  return text.slice(0, 2).toUpperCase()
+}
 function ProductImage({ product, className='' }) { return <div className={`food-img ${className}`} style={product?.image ? { backgroundImage:`linear-gradient(180deg,rgba(18,9,7,.05),rgba(18,9,7,.70)),url(${product.image})` } : undefined}>{!product?.image && productEmoji(product)}</div> }
 function downloadBlob(blob, name) { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 800) }
 
@@ -813,52 +820,61 @@ function MenuPage({ products, deliveryMode = false, publicMode = false }) {
   if (!deliveryMode) return <div className="page"><div className="title"><p className="eyebrow">Cardápio</p><h1>Cardápio digital Old Brother</h1><p className="title-sub">Produtos cadastrados no sistema. Se o banco ainda não tiver produtos, o cardápio oficial carregará como referência.</p></div><div className="filters"><input placeholder="Buscar produto" value={q} onChange={e=>setQ(e.target.value)}/><select value={cat} onChange={e=>setCat(e.target.value)}><option value="todos">Todas categorias</option>{cats.map(c=><option key={c}>{c}</option>)}</select></div><div className="product-grid">{list.map(p=><Card key={p.id} className="menu-card"><ProductImage product={p}/><div className="menu-card-body"><Pill type="gold">{p.category}</Pill><h3>{p.name}</h3><p>{p.description}</p><b>{money(p.price)}</b></div></Card>)}</div></div>
 
   return <div className="delivery-menu-page whatsmenu-page">
-    <section className="wm-hero">
+    <header className="wm-hero">
       <div className="wm-brand-card">
-        <div className="wm-logo">OB</div>
+        <div className="wm-logo" aria-hidden="true">OB</div>
         <div>
           <p className="eyebrow">Old Brother Hamburgueria</p>
           <h1>Cardápio Delivery</h1>
-          <p>Escolha seus itens, revise o pedido e envie direto para o WhatsApp.</p>
+          <p>Monte seu pedido em poucos toques e envie tudo organizado para o WhatsApp da loja.</p>
         </div>
       </div>
-      <div className="wm-hero-info">
+      <div className="wm-hero-info" aria-label="Informações do atendimento">
         <Pill type="gold">WhatsApp {OLD_BROTHER_WHATSAPP_DISPLAY}</Pill>
         <Pill>Entrega e retirada</Pill>
       </div>
-    </section>
+    </header>
 
     {!publicMode && <Card className="store-whatsapp-card"><div className="section-head"><div><h3>WhatsApp da loja</h3><p className="muted">Número oficial já configurado. Use DDI + DDD + número.</p></div><div className="store-phone-actions"><input value={storePhone} onChange={e=>setStorePhone(e.target.value)} placeholder="5591982358630"/><Button variant="secondary" onClick={savePhone}>Salvar</Button></div></div></Card>}
 
-    <section className="wm-search-card">
-      <input placeholder="Buscar no cardápio" value={q} onChange={e=>setQ(e.target.value)}/>
-      <div className="wm-category-tabs">
-        <button className={cat==='todos' ? 'active' : ''} onClick={()=>setCat('todos')}>Todos</button>
-        {cats.map(c=><button key={c} className={cat===c ? 'active' : ''} onClick={()=>setCat(c)}>{c}</button>)}
-      </div>
+    <section className="wm-search-card" aria-label="Busca no cardápio">
+      <label className="sr-only" htmlFor="delivery-menu-search">Buscar no cardápio</label>
+      <input id="delivery-menu-search" placeholder="Buscar burger, combo, batata ou bebida" value={q} onChange={e=>setQ(e.target.value)}/>
     </section>
 
-    <section className="wm-menu-list wm-menu-list-full">
-      {groupedByCategory.map(group => <div className="wm-category-section" key={group.category}>
-        <div className="wm-section-title"><span>{productEmoji({ category: group.category })}</span><h2>{group.category}</h2></div>
-        <div className="wm-items">
-          {group.items.map(p => <article className="wm-item" key={p.id} onClick={()=>openProduct(p)}>
-            <div className="wm-item-main">
-              <div className="wm-item-top">
-                <h3>{p.name}</h3>
-                <strong>{money(p.price)}</strong>
+    <div className="wm-content-grid">
+      <aside className="wm-category-rail" aria-label="Categorias do cardápio">
+        <nav className="wm-category-tabs">
+          <button type="button" className={cat==='todos' ? 'active' : ''} onClick={()=>setCat('todos')}>Todos</button>
+          {cats.map(c=><button type="button" key={c} className={cat===c ? 'active' : ''} onClick={()=>setCat(c)}>{c}</button>)}
+        </nav>
+      </aside>
+
+      <section className="wm-menu-list wm-menu-list-full" aria-label="Itens do cardápio">
+        {groupedByCategory.map(group => <section className="wm-category-section" key={group.category} aria-labelledby={`cat-${group.category.replace(/\s+/g,'-').toLowerCase()}`}>
+          <div className="wm-section-title"><span aria-hidden="true">{categoryShort(group.category)}</span><h2 id={`cat-${group.category.replace(/\s+/g,'-').toLowerCase()}`}>{group.category}</h2></div>
+          <div className="wm-items">
+            {group.items.map(p => <article className="wm-item" key={p.id} onClick={()=>openProduct(p)}>
+              <div className="wm-item-main">
+                <div className="wm-item-top">
+                  <div>
+                    <p className="wm-item-category">{p.category}</p>
+                    <h3>{p.name}</h3>
+                  </div>
+                  <strong>{money(p.price)}</strong>
+                </div>
+                <p>{p.description || 'Item do cardápio Old Brother.'}</p>
               </div>
-              <p>{p.description || 'Item do cardápio Old Brother.'}</p>
-            </div>
-            <button className="wm-add-btn" onClick={(e)=>{e.stopPropagation(); openProduct(p)}} aria-label={`Adicionar ${p.name}`}>+</button>
-          </article>)}
-        </div>
-      </div>)}
-      {!list.length && <Card><p className="muted">Nenhum produto encontrado.</p></Card>}
-    </section>
+              <button type="button" className="wm-add-btn" onClick={(e)=>{e.stopPropagation(); openProduct(p)}} aria-label={`Adicionar ${p.name}`}>+</button>
+            </article>)}
+          </div>
+        </section>)}
+        {!list.length && <Card><p className="muted">Nenhum produto encontrado.</p></Card>}
+      </section>
+    </div>
 
     {cart.length > 0 && <div className="wm-checkout-bar" role="region" aria-label="Resumo do pedido">
-      <button onClick={startCheckout}>
+      <button type="button" onClick={startCheckout}>
         <span className="wm-checkout-count">{cartCount}</span>
         <span className="wm-checkout-title">Ver pedido</span>
         <strong>{money(total)}</strong>
@@ -867,7 +883,7 @@ function MenuPage({ products, deliveryMode = false, publicMode = false }) {
 
     {selectedProduct && <div className="wm-modal-backdrop" onClick={closeProduct}>
       <section className="wm-product-modal" onClick={e=>e.stopPropagation()}>
-        <button className="wm-close" onClick={closeProduct}>×</button>
+        <button type="button" className="wm-close" onClick={closeProduct} aria-label="Fechar">×</button>
         <div className="wm-product-head">
           <span className="wm-product-emoji">{productEmoji(selectedProduct)}</span>
           <div>
@@ -879,7 +895,7 @@ function MenuPage({ products, deliveryMode = false, publicMode = false }) {
         <p className="wm-product-description">{selectedProduct.description || 'Item do cardápio Old Brother.'}</p>
         <Field label="Observação"><textarea value={productDraft.notes} onChange={e=>setProductDraft({...productDraft,notes:e.target.value})} placeholder="Ex: sem cebola, ponto da carne, retirar molho..."/></Field>
         <div className="wm-product-actions">
-          <div className="qty-actions wm-product-qty"><button onClick={()=>setProductDraft({...productDraft,quantity:Math.max(1,Number(productDraft.quantity || 1)-1)})}>-</button><b>{productDraft.quantity}</b><button onClick={()=>setProductDraft({...productDraft,quantity:Number(productDraft.quantity || 1)+1})}>+</button></div>
+          <div className="qty-actions wm-product-qty"><button type="button" onClick={()=>setProductDraft({...productDraft,quantity:Math.max(1,Number(productDraft.quantity || 1)-1)})}>-</button><b>{productDraft.quantity}</b><button type="button" onClick={()=>setProductDraft({...productDraft,quantity:Number(productDraft.quantity || 1)+1})}>+</button></div>
           <Button onClick={addSelected}>Adicionar • {money(Number(selectedProduct.price || 0) * Number(productDraft.quantity || 1))}</Button>
         </div>
       </section>
@@ -888,12 +904,12 @@ function MenuPage({ products, deliveryMode = false, publicMode = false }) {
     {checkoutStep && <div className="wm-modal-backdrop wm-checkout-backdrop" onClick={()=>setCheckoutStep(null)}>
       <section className="wm-checkout-sheet" onClick={e=>e.stopPropagation()}>
         <div className="wm-sheet-head">
-          <button className="wm-back" onClick={()=>checkoutStep === 'delivery' ? setCheckoutStep(null) : setCheckoutStep(checkoutStep === 'payment' ? 'delivery' : 'payment')}>←</button>
+          <button type="button" className="wm-back" onClick={()=>checkoutStep === 'delivery' ? setCheckoutStep(null) : setCheckoutStep(checkoutStep === 'payment' ? 'delivery' : 'payment')} aria-label="Voltar">←</button>
           <div>
             <p className="eyebrow">Seu pedido</p>
             <h2>{checkoutStep === 'delivery' ? 'Entrega' : checkoutStep === 'payment' ? 'Pagamento' : 'Pedido pronto'}</h2>
           </div>
-          <button className="wm-close" onClick={()=>setCheckoutStep(null)}>×</button>
+          <button type="button" className="wm-close" onClick={()=>setCheckoutStep(null)} aria-label="Fechar">×</button>
         </div>
 
         <div className="wm-flow-progress">
@@ -906,13 +922,13 @@ function MenuPage({ products, deliveryMode = false, publicMode = false }) {
           <div className="wm-checkout-list">
             {cart.map(i=><div className="wm-checkout-item" key={i.cart_id}>
               <div><strong>{i.quantity}x {i.product_name}</strong>{i.notes && <span>Obs: {i.notes}</span>}<small>{money(i.unit_price)} cada</small></div>
-              <div className="qty-actions"><button onClick={()=>changeQty(i.cart_id,-1)}>-</button><b>{i.quantity}</b><button onClick={()=>changeQty(i.cart_id,1)}>+</button></div>
-              <button className="wm-remove" onClick={()=>removeCartItem(i.cart_id)}>Remover</button>
+              <div className="qty-actions"><button type="button" onClick={()=>changeQty(i.cart_id,-1)}>-</button><b>{i.quantity}</b><button type="button" onClick={()=>changeQty(i.cart_id,1)}>+</button></div>
+              <button type="button" className="wm-remove" onClick={()=>removeCartItem(i.cart_id)}>Remover</button>
             </div>)}
           </div>
           <div className="wm-delivery-choice">
-            <button className={deliveryType === 'entrega' ? 'active' : ''} onClick={()=>setDeliveryType('entrega')}><strong>Entrega</strong><span>Receber no endereço</span></button>
-            <button className={deliveryType === 'retirada' ? 'active' : ''} onClick={()=>setDeliveryType('retirada')}><strong>Retirada</strong><span>Buscar na loja</span></button>
+            <button type="button" className={deliveryType === 'entrega' ? 'active' : ''} onClick={()=>setDeliveryType('entrega')}><strong>Entrega</strong><span>Receber no endereço</span></button>
+            <button type="button" className={deliveryType === 'retirada' ? 'active' : ''} onClick={()=>setDeliveryType('retirada')}><strong>Retirada</strong><span>Buscar na loja</span></button>
           </div>
           <div className="delivery-form wm-delivery-form wm-sheet-form">
             <Field label="Nome"><input value={form.customer_name} onChange={e=>setForm({...form,customer_name:e.target.value})} placeholder="Seu nome"/></Field>
@@ -926,7 +942,7 @@ function MenuPage({ products, deliveryMode = false, publicMode = false }) {
 
         {checkoutStep === 'payment' && <div className="wm-sheet-body">
           <div className="wm-payment-options">
-            {payMethods.filter(p=>['pix','debito','credito','dinheiro'].includes(p.value)).map(p=><button key={p.value} className={payment.method === p.value ? 'active' : ''} onClick={()=>setPayment({...payment,method:p.value})}><strong>{p.label}</strong><span>{p.value === 'pix' ? 'Chave Pix enviada pela loja' : p.value === 'dinheiro' ? 'Informe se precisa de troco' : 'Pagamento na entrega/retirada'}</span></button>)}
+            {payMethods.filter(p=>['pix','debito','credito','dinheiro'].includes(p.value)).map(p=><button type="button" key={p.value} className={payment.method === p.value ? 'active' : ''} onClick={()=>setPayment({...payment,method:p.value})}><strong>{p.label}</strong><span>{p.value === 'pix' ? 'Chave Pix enviada pela loja' : p.value === 'dinheiro' ? 'Informe se precisa de troco' : 'Pagamento na entrega/retirada'}</span></button>)}
           </div>
           {payment.method === 'dinheiro' && <Field label="Troco para"><input type="number" step="0.01" value={payment.changeFor} onChange={e=>setPayment({...payment,changeFor:e.target.value})} placeholder="Ex: 100"/></Field>}
           <div className="wm-sheet-summary"><Row a="Subtotal" b={money(subtotal)} /><Row a="Taxa de entrega" b={money(deliveryFee)} /><Row a="Total" b={money(total)} /></div>
