@@ -4243,3 +4243,128 @@ b,
     min-height: 46px;
   }
 }
+
+/* V16 — ajustes solicitados: sem fogo no ícone e cardápio alinhado à esquerda no desktop */
+@media (min-width: 1025px) {
+  .whatsmenu-page {
+    width: min(1400px, calc(100% - 56px));
+  }
+
+  .wm-content-grid {
+    display: block;
+  }
+
+  .wm-category-rail {
+    position: sticky;
+    top: 92px;
+    z-index: 38;
+    margin: 0 0 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .wm-category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+  }
+
+  .wm-category-tabs button {
+    width: auto;
+    min-height: 48px;
+    border: 1px solid rgba(36, 20, 13, 0.12);
+    border-radius: 999px;
+    padding: 11px 18px;
+    background: rgba(255, 250, 243, 0.94);
+    color: var(--ob-ink);
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: 0 10px 22px rgba(36, 20, 13, 0.05);
+  }
+
+  .wm-category-tabs button.active,
+  .wm-category-tabs button:hover {
+    border-color: var(--ob-ink);
+    background: var(--ob-ink);
+    color: var(--ob-paper);
+  }
+
+  .wm-menu-list,
+  .wm-menu-list-full,
+  .wm-category-section,
+  .wm-items {
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  .wm-section-title {
+    justify-content: flex-start;
+    padding-left: 0;
+  }
+
+  .wm-section-title span {
+    overflow: hidden;
+    line-height: 1;
+    font-size: 12px;
+  }
+
+  .wm-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .wm-item {
+    min-height: 132px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .wm-items {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .wm-content-grid {
+    display: block;
+  }
+
+  .wm-category-rail {
+    position: sticky;
+    top: 82px;
+    z-index: 38;
+    margin: 0 0 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .wm-category-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 0 0 4px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .wm-category-tabs button {
+    width: auto;
+    flex: 0 0 auto;
+    min-height: 44px;
+    border-radius: 999px;
+    text-align: center;
+    white-space: nowrap;
+    scroll-snap-align: start;
+  }
+}

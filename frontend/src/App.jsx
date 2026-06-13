@@ -282,7 +282,7 @@ function productEmoji(product = {}) {
   if (haystack.includes('bebida') || haystack.includes('refri') || haystack.includes('suco')) return '🥤'
   if (haystack.includes('água') || haystack.includes('agua')) return '💧'
   if (haystack.includes('milk')) return '🥤'
-  if (haystack.includes('combo') || haystack.includes('promo')) return '🍔🔥'
+  if (haystack.includes('combo') || haystack.includes('promo')) return '🍔'
   return '🍔'
 }
 function categoryShort(category = '') {
