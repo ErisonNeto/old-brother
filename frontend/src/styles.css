@@ -2188,8 +2188,31 @@ p {
 
 .wm-delivery-form .field:nth-child(3),
 .wm-delivery-form .field:nth-child(5),
-.wm-delivery-form .field:nth-child(7) {
+.wm-delivery-form .field:last-child,
+.wm-fixed-fee-note {
   grid-column: 1 / -1;
+}
+
+.wm-fixed-fee-note {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1px solid rgba(36, 20, 13, 0.08);
+  border-radius: 16px;
+  background: rgba(36, 20, 13, 0.04);
+  color: #24140d;
+}
+
+.wm-fixed-fee-note strong {
+  font-weight: 900;
+}
+
+.wm-fixed-fee-note span {
+  color: rgba(36, 20, 13, 0.62);
+  font-weight: 800;
+  text-align: right;
 }
 
 .wm-cart-actions {
@@ -2269,8 +2292,18 @@ p {
 
   .wm-delivery-form .field:nth-child(3),
   .wm-delivery-form .field:nth-child(5),
-  .wm-delivery-form .field:nth-child(7) {
+  .wm-delivery-form .field:last-child,
+  .wm-fixed-fee-note {
     grid-column: auto;
+  }
+
+  .wm-fixed-fee-note {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .wm-fixed-fee-note span {
+    text-align: left;
   }
 
   .wm-cart-actions {

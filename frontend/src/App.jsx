@@ -740,7 +740,7 @@ function MenuPage({ products, deliveryMode = false, publicMode = false }) {
   const [checkoutStep,setCheckoutStep]=useState(null)
   const [deliveryType,setDeliveryType]=useState('entrega')
   const [payment,setPayment]=useState({ method: 'pix', changeFor: '' })
-  const [form,setForm]=useState({customer_name:'',customer_phone:'',delivery_address:'',delivery_neighborhood:'',delivery_reference:'',delivery_fee:DEFAULT_DELIVERY_FEE,notes:''})
+  const [form,setForm]=useState({customer_name:'',customer_phone:'',delivery_address:'',delivery_neighborhood:'',delivery_reference:'',notes:''})
   const [storePhone,setStorePhone]=useState(() => STORE_WHATSAPP || localStorage.getItem('ob.store.whatsapp') || '5591982358630')
   const menuProducts = useMemo(() => {
     const realProducts = (products || []).filter(p => p.active || p.available)
@@ -753,7 +753,8 @@ function MenuPage({ products, deliveryMode = false, publicMode = false }) {
     items: list.filter(p => p.category === category),
   })).filter(group => group.items.length)
   const subtotal=totalItems(cart)
-  const deliveryFee=deliveryMode && deliveryType === 'entrega' ? Number(form.delivery_fee || 0) : 0
+  const configuredDeliveryFee = Number.isFinite(DEFAULT_DELIVERY_FEE) ? Math.max(Number(DEFAULT_DELIVERY_FEE), 0) : 0
+  const deliveryFee=deliveryMode && deliveryType === 'entrega' ? configuredDeliveryFee : 0
   const total=subtotal + deliveryFee
   const cartCount=cart.reduce((s,i)=>s+Number(i.quantity || 0),0)
   const paymentLabel={pix:'Pix', debito:'Cartão de débito', credito:'Cartão de crédito', dinheiro:'Dinheiro'}[payment.method] || payment.method
@@ -800,7 +801,7 @@ function MenuPage({ products, deliveryMode = false, publicMode = false }) {
       ...itemLines,
       '',
       `Subtotal: ${money(subtotal)}`,
-      `Taxa de entrega: ${money(deliveryFee)}`,
+      `Taxa de entrega: ${deliveryType === 'entrega' ? money(deliveryFee) : money(0)}`,
       `Total: ${money(total)}`,
       ...deliveryLines,
       ...paymentLines,
@@ -933,7 +934,7 @@ function MenuPage({ products, deliveryMode = false, publicMode = false }) {
           <div className="delivery-form wm-delivery-form wm-sheet-form">
             <Field label="Nome"><input value={form.customer_name} onChange={e=>setForm({...form,customer_name:e.target.value})} placeholder="Seu nome"/></Field>
             <Field label="Telefone"><input value={form.customer_phone} onChange={e=>setForm({...form,customer_phone:e.target.value})} placeholder="Seu telefone"/></Field>
-            {deliveryType === 'entrega' && <><Field label="Endereço"><input value={form.delivery_address} onChange={e=>setForm({...form,delivery_address:e.target.value})} placeholder="Rua, número e complemento"/></Field><Field label="Bairro"><input value={form.delivery_neighborhood} onChange={e=>setForm({...form,delivery_neighborhood:e.target.value})} placeholder="Bairro"/></Field><Field label="Referência"><input value={form.delivery_reference} onChange={e=>setForm({...form,delivery_reference:e.target.value})} placeholder="Ponto de referência"/></Field><Field label="Taxa de entrega"><input type="number" step="0.01" value={form.delivery_fee} onChange={e=>setForm({...form,delivery_fee:e.target.value})}/></Field></>}
+            {deliveryType === 'entrega' && <><Field label="Endereço"><input value={form.delivery_address} onChange={e=>setForm({...form,delivery_address:e.target.value})} placeholder="Rua, número e complemento"/></Field><Field label="Bairro"><input value={form.delivery_neighborhood} onChange={e=>setForm({...form,delivery_neighborhood:e.target.value})} placeholder="Bairro"/></Field><Field label="Referência"><input value={form.delivery_reference} onChange={e=>setForm({...form,delivery_reference:e.target.value})} placeholder="Ponto de referência"/></Field><div className="wm-fixed-fee-note" role="note"><strong>Taxa de entrega</strong><span>{money(deliveryFee)} definida pela loja.</span></div></>}
             <Field label="Observação geral"><textarea value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder="Ex: troco, molho à parte, observações do pedido..."/></Field>
           </div>
           <div className="wm-sheet-summary"><Row a="Subtotal" b={money(subtotal)} /><Row a="Taxa de entrega" b={money(deliveryFee)} /><Row a="Total" b={money(total)} /></div>
