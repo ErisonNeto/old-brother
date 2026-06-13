@@ -24,11 +24,6 @@ const periodOptions = [
 ]
 
 const OLD_BROTHER_WHATSAPP_DISPLAY = '+55 91 98235-8630'
-const MENU_ASSETS = {
-  board: '/assets/old-brother-cardapio.jpeg',
-  combo95: '/assets/old-brother-combo-namorados-95.jpeg',
-  combo65: '/assets/old-brother-combo-namorados-65.jpeg',
-}
 const OLD_BROTHER_MENU_PRODUCTS = [
   {
     id: 'ob-promo-namorados-95',
@@ -38,7 +33,7 @@ const OLD_BROTHER_MENU_PRODUCTS = [
     description: '1 milkshake de morango, 1 milkshake de Ovomaltine, 1 batata G, 1 refrigerante 600ml e 2 hambúrgueres especiais.',
     active: true,
     available: true,
-    image: MENU_ASSETS.combo95,
+    image: '',
   },
   {
     id: 'ob-promo-namorados-65',
@@ -48,7 +43,7 @@ const OLD_BROTHER_MENU_PRODUCTS = [
     description: '2 hambúrgueres, batata G e 1 refrigerante 600ml para compartilhar.',
     active: true,
     available: true,
-    image: MENU_ASSETS.combo65,
+    image: '',
   },
   {
     id: 'ob-costela-old',
@@ -726,7 +721,7 @@ function CashierPage({ tables, orders, reload }) {
 }
 
 function CustomerDeliveryMenu({ products }) {
-  return <main className="customer delivery-public"><div className="customer-head"><div><p className="eyebrow">Old Brother</p><h1>Cardápio Delivery</h1></div><Pill type="gold">WhatsApp {OLD_BROTHER_WHATSAPP_DISPLAY}</Pill></div><MenuPage products={products} deliveryMode publicMode /></main>
+  return <main className="customer delivery-public"><MenuPage products={products} deliveryMode publicMode /></main>
 }
 
 function MenuPage({ products, deliveryMode = false, publicMode = false }) {
@@ -741,6 +736,10 @@ function MenuPage({ products, deliveryMode = false, publicMode = false }) {
   }, [products])
   const cats=[...new Set(menuProducts.map(p=>p.category).filter(Boolean))]
   const list=menuProducts.filter(p=>(p.active || p.available) && (cat==='todos'||p.category===cat) && `${p.name} ${p.description || ''}`.toLowerCase().includes(q.toLowerCase()))
+  const groupedByCategory = cats.map(category => ({
+    category,
+    items: list.filter(p => p.category === category),
+  })).filter(group => group.items.length)
   const subtotal=totalItems(cart)
   const deliveryFee=deliveryMode ? Number(form.delivery_fee || 0) : 0
   const total=subtotal + deliveryFee
@@ -780,33 +779,76 @@ function MenuPage({ products, deliveryMode = false, publicMode = false }) {
 
   if (!deliveryMode) return <div className="page"><div className="title"><p className="eyebrow">Cardápio</p><h1>Cardápio digital Old Brother</h1><p className="title-sub">Produtos cadastrados no sistema. Se o banco ainda não tiver produtos, o cardápio oficial carregará como referência.</p></div><div className="filters"><input placeholder="Buscar produto" value={q} onChange={e=>setQ(e.target.value)}/><select value={cat} onChange={e=>setCat(e.target.value)}><option value="todos">Todas categorias</option>{cats.map(c=><option key={c}>{c}</option>)}</select></div><div className="product-grid">{list.map(p=><Card key={p.id} className="menu-card"><ProductImage product={p}/><div className="menu-card-body"><Pill type="gold">{p.category}</Pill><h3>{p.name}</h3><p>{p.description}</p><b>{money(p.price)}</b></div></Card>)}</div></div>
 
-  return <div className="page delivery-menu-page">
-    <section className="delivery-hero">
-      <div className="delivery-hero-copy">
-        <p className="eyebrow">Old Brother Hamburgueria</p>
-        <h1>Monte seu pedido</h1>
-        <p>Escolha os itens do cardápio, confira subtotal + taxa de entrega e envie tudo direto para o WhatsApp da loja.</p>
-        <div className="hero-badges"><Pill type="gold">WhatsApp {OLD_BROTHER_WHATSAPP_DISPLAY}</Pill><Pill>Feito na brasa</Pill></div>
+  return <div className="delivery-menu-page whatsmenu-page">
+    <section className="wm-hero">
+      <div className="wm-brand-card">
+        <div className="wm-logo">OB</div>
+        <div>
+          <p className="eyebrow">Old Brother Hamburgueria</p>
+          <h1>Cardápio Delivery</h1>
+          <p>Monte seu pedido e envie direto para o WhatsApp da loja.</p>
+        </div>
       </div>
-      <div className="delivery-hero-image" style={{ backgroundImage:`linear-gradient(180deg,rgba(18,9,7,.02),rgba(18,9,7,.76)),url(${MENU_ASSETS.combo65})` }} />
+      <div className="wm-hero-info">
+        <Pill type="gold">WhatsApp {OLD_BROTHER_WHATSAPP_DISPLAY}</Pill>
+        <Pill>Entrega e retirada</Pill>
+      </div>
     </section>
-
-    <div className="promo-strip">
-      <Card className="promo-card"><div className="promo-img" style={{ backgroundImage:`url(${MENU_ASSETS.combo95})` }} /><div><Pill type="gold">Promoção</Pill><h3>Combo Dia dos Namorados</h3><p>Combo especial por {money(95.90)}.</p></div></Card>
-      <Card className="promo-card"><div className="promo-img" style={{ backgroundImage:`url(${MENU_ASSETS.board})` }} /><div><Pill type="gold">Cardápio</Pill><h3>Hambúrgueres, batatas e bebidas</h3><p>Itens oficiais do cardápio Old Brother.</p></div></Card>
-    </div>
 
     {!publicMode && <Card className="store-whatsapp-card"><div className="section-head"><div><h3>WhatsApp da loja</h3><p className="muted">Número oficial já configurado. Use DDI + DDD + número.</p></div><div className="store-phone-actions"><input value={storePhone} onChange={e=>setStorePhone(e.target.value)} placeholder="5591982358630"/><Button variant="secondary" onClick={savePhone}>Salvar</Button></div></div></Card>}
 
-    <div className="filters"><input placeholder="Buscar produto" value={q} onChange={e=>setQ(e.target.value)}/><select value={cat} onChange={e=>setCat(e.target.value)}><option value="todos">Todas categorias</option>{cats.map(c=><option key={c}>{c}</option>)}</select></div>
-
-    <div className="grid-main delivery-menu-layout">
-      <div className="product-grid delivery-product-grid">
-        {list.map(p=><Card key={p.id} className="menu-card delivery-product-card"><ProductImage product={p}/><div className="menu-card-body"><Pill type="gold">{p.category}</Pill><h3>{p.name}</h3><p>{p.description}</p><div className="between"><b>{money(p.price)}</b><Button onClick={()=>add(p)}>Adicionar</Button></div></div></Card>)}
-        {!list.length && <Card><p className="muted">Nenhum produto encontrado.</p></Card>}
+    <section className="wm-search-card">
+      <input placeholder="Buscar no cardápio" value={q} onChange={e=>setQ(e.target.value)}/>
+      <div className="wm-category-tabs">
+        <button className={cat==='todos' ? 'active' : ''} onClick={()=>setCat('todos')}>Todos</button>
+        {cats.map(c=><button key={c} className={cat===c ? 'active' : ''} onClick={()=>setCat(c)}>{c}</button>)}
       </div>
+    </section>
 
-      <Card className="delivery-cart-card"><h3>Pedido via WhatsApp</h3><p className="muted">Destino: {OLD_BROTHER_WHATSAPP_DISPLAY}</p><div className="delivery-form"><Field label="Nome"><input value={form.customer_name} onChange={e=>setForm({...form,customer_name:e.target.value})} placeholder="Nome do cliente"/></Field><Field label="Telefone"><input value={form.customer_phone} onChange={e=>setForm({...form,customer_phone:e.target.value})} placeholder="Telefone"/></Field><Field label="Endereço"><input value={form.delivery_address} onChange={e=>setForm({...form,delivery_address:e.target.value})} placeholder="Rua, número"/></Field><Field label="Bairro"><input value={form.delivery_neighborhood} onChange={e=>setForm({...form,delivery_neighborhood:e.target.value})} placeholder="Bairro"/></Field><Field label="Referência"><input value={form.delivery_reference} onChange={e=>setForm({...form,delivery_reference:e.target.value})} placeholder="Ponto de referência"/></Field><Field label="Taxa de entrega"><input type="number" step="0.01" value={form.delivery_fee} onChange={e=>setForm({...form,delivery_fee:e.target.value})}/></Field><Field label="Observação"><textarea value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder="Ex: sem cebola, troco para R$ 100..."/></Field></div><div className="delivery-cart-items">{cart.map(i=><div className="delivery-cart-item" key={i.product_id}><div><strong>{i.product_name}</strong><span>{money(i.unit_price)} cada</span></div><div className="qty-actions"><button onClick={()=>changeQty(i.product_id,-1)}>-</button><b>{i.quantity}</b><button onClick={()=>changeQty(i.product_id,1)}>+</button></div></div>)}{!cart.length && <p className="muted">Adicione itens do cardápio para montar o pedido.</p>}</div><div className="order-summary"><Row a="Subtotal" b={money(subtotal)} /><Row a="Taxa de entrega" b={money(deliveryFee)} /><Row a="Total" b={money(total)} /></div><div className="actions"><Button disabled={!cart.length} onClick={openWhatsApp}>Enviar pedido no WhatsApp</Button>{cart.length>0 && <Button variant="secondary" onClick={()=>setCart([])}>Limpar carrinho</Button>}</div></Card>
+    <div className="delivery-menu-layout wm-layout">
+      <section className="wm-menu-list">
+        {groupedByCategory.map(group => <div className="wm-category-section" key={group.category}>
+          <div className="wm-section-title"><span>{productEmoji({ category: group.category })}</span><h2>{group.category}</h2></div>
+          <div className="wm-items">
+            {group.items.map(p => <article className="wm-item" key={p.id}>
+              <div className="wm-item-main">
+                <div className="wm-item-top">
+                  <h3>{p.name}</h3>
+                  <strong>{money(p.price)}</strong>
+                </div>
+                <p>{p.description || 'Item do cardápio Old Brother.'}</p>
+              </div>
+              <button className="wm-add-btn" onClick={()=>add(p)} aria-label={`Adicionar ${p.name}`}>+</button>
+            </article>)}
+          </div>
+        </div>)}
+        {!list.length && <Card><p className="muted">Nenhum produto encontrado.</p></Card>}
+      </section>
+
+      <aside className="delivery-cart-card wm-cart-card">
+        <div className="wm-cart-head">
+          <div>
+            <p className="eyebrow">Seu pedido</p>
+            <h3>Carrinho</h3>
+          </div>
+          <Pill type="gold">{cart.reduce((s,i)=>s+i.quantity,0)} {pluralize(cart.reduce((s,i)=>s+i.quantity,0), 'item', 'itens')}</Pill>
+        </div>
+        <div className="delivery-cart-items wm-cart-items">
+          {cart.map(i=><div className="delivery-cart-item wm-cart-item" key={i.product_id}><div><strong>{i.product_name}</strong><span>{money(i.unit_price)} cada</span></div><div className="qty-actions"><button onClick={()=>changeQty(i.product_id,-1)}>-</button><b>{i.quantity}</b><button onClick={()=>changeQty(i.product_id,1)}>+</button></div></div>)}
+          {!cart.length && <div className="wm-empty-cart"><strong>Seu carrinho está vazio</strong><span>Toque no + ao lado dos itens para adicionar.</span></div>}
+        </div>
+        <div className="order-summary wm-summary"><Row a="Subtotal" b={money(subtotal)} /><Row a="Taxa de entrega" b={money(deliveryFee)} /><Row a="Total" b={money(total)} /></div>
+        <div className="delivery-form wm-delivery-form">
+          <Field label="Nome"><input value={form.customer_name} onChange={e=>setForm({...form,customer_name:e.target.value})} placeholder="Seu nome"/></Field>
+          <Field label="Telefone"><input value={form.customer_phone} onChange={e=>setForm({...form,customer_phone:e.target.value})} placeholder="Seu telefone"/></Field>
+          <Field label="Endereço"><input value={form.delivery_address} onChange={e=>setForm({...form,delivery_address:e.target.value})} placeholder="Rua e número"/></Field>
+          <Field label="Bairro"><input value={form.delivery_neighborhood} onChange={e=>setForm({...form,delivery_neighborhood:e.target.value})} placeholder="Bairro"/></Field>
+          <Field label="Referência"><input value={form.delivery_reference} onChange={e=>setForm({...form,delivery_reference:e.target.value})} placeholder="Ponto de referência"/></Field>
+          <Field label="Taxa de entrega"><input type="number" step="0.01" value={form.delivery_fee} onChange={e=>setForm({...form,delivery_fee:e.target.value})}/></Field>
+          <Field label="Observação"><textarea value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder="Ex: sem cebola, troco para R$ 100..."/></Field>
+        </div>
+        <div className="actions wm-cart-actions"><Button disabled={!cart.length} onClick={openWhatsApp}>Enviar no WhatsApp</Button>{cart.length>0 && <Button variant="secondary" onClick={()=>setCart([])}>Limpar</Button>}</div>
+      </aside>
     </div>
   </div>
 }
