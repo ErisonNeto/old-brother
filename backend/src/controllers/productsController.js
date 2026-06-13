@@ -2,12 +2,17 @@ import { z } from 'zod';
 import { query } from '../config/db.js';
 import { HttpError } from '../utils/httpError.js';
 
+const imageUrlSchema = z.string().trim().refine((value) => {
+  if (!value) return true;
+  return value.startsWith('/') || /^https?:\/\//i.test(value);
+}, { message: 'Imagem precisa ser uma URL ou caminho público, exemplo: /assets/produto.jpg' });
+
 const productSchema = z.object({
   category_id: z.string().uuid().optional().nullable(),
   name: z.string().min(2),
   description: z.string().optional().nullable(),
   price: z.coerce.number().min(0),
-  image_url: z.string().url().optional().nullable(),
+  image_url: imageUrlSchema.optional().nullable(),
   available: z.boolean().optional(),
   prep_time_minutes: z.coerce.number().int().min(1).optional(),
 });

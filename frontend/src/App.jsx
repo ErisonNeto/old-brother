@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { QRCodeCanvas } from 'qrcode.react'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3333/api'
+const STORE_WHATSAPP = String(import.meta.env.VITE_STORE_WHATSAPP || '5591982358630').replace(/\D/g, '')
+const DEFAULT_DELIVERY_FEE = Number(import.meta.env.VITE_DEFAULT_DELIVERY_FEE || 0)
 const POLL_MS = 2500
 const roles = ['admin', 'gerente', 'garcom', 'cozinha', 'caixa', 'delivery', 'estoque']
 const roleLabels = { admin: 'Admin', gerente: 'Gerente', garcom: 'Garçom', cozinha: 'Cozinha', caixa: 'Caixa', delivery: 'Delivery', estoque: 'Estoque' }
@@ -13,6 +15,221 @@ const payMethods = [
   { label: 'Crédito', value: 'credito' },
   { label: 'Dinheiro', value: 'dinheiro' },
   { label: 'Misto', value: 'misto' }
+]
+const periodOptions = [
+  { value: 'daily', label: 'Diário', kpi: 'Faturamento diário' },
+  { value: 'weekly', label: 'Semanal', kpi: 'Faturamento semanal' },
+  { value: 'monthly', label: 'Mensal', kpi: 'Faturamento mensal' },
+  { value: 'total', label: 'Total', kpi: 'Faturamento total' },
+]
+
+const OLD_BROTHER_WHATSAPP_DISPLAY = '+55 91 98235-8630'
+const MENU_ASSETS = {
+  board: '/assets/old-brother-cardapio.jpeg',
+  combo95: '/assets/old-brother-combo-namorados-95.jpeg',
+  combo65: '/assets/old-brother-combo-namorados-65.jpeg',
+}
+const OLD_BROTHER_MENU_PRODUCTS = [
+  {
+    id: 'ob-promo-namorados-95',
+    name: 'Combo Dia dos Namorados',
+    category: 'Promoções',
+    price: 95.90,
+    description: '1 milkshake de morango, 1 milkshake de Ovomaltine, 1 batata G, 1 refrigerante 600ml e 2 hambúrgueres especiais.',
+    active: true,
+    available: true,
+    image: MENU_ASSETS.combo95,
+  },
+  {
+    id: 'ob-promo-namorados-65',
+    name: 'Combo Especial Dia dos Namorados',
+    category: 'Promoções',
+    price: 65.90,
+    description: '2 hambúrgueres, batata G e 1 refrigerante 600ml para compartilhar.',
+    active: true,
+    available: true,
+    image: MENU_ASSETS.combo65,
+  },
+  {
+    id: 'ob-costela-old',
+    name: 'Costela Old',
+    category: 'Hambúrgueres',
+    price: 28,
+    description: 'Pão australiano, carne 150g, queijo prato, costela desfiada, geleia de pimenta e molho da casa.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-duplo-old-bacon',
+    name: 'Duplo Old Bacon',
+    category: 'Hambúrgueres',
+    price: 35,
+    description: 'Pão australiano, 2 carnes 150g, 2 queijos cheddar, bacon, creme de cheddar e molho da casa.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-salad-old-burguer',
+    name: 'Salad Old Burguer',
+    category: 'Hambúrgueres',
+    price: 20,
+    description: 'Pão australiano, carne 150g, queijo prato, salada e molho da casa.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-classic-old-burguer',
+    name: 'Classic Old Burguer',
+    category: 'Hambúrgueres',
+    price: 22,
+    description: 'Pão australiano, carne 150g, queijo cheddar, pickles e molho da casa.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-cheddar-old-burguer',
+    name: 'Cheddar Old Burguer',
+    category: 'Hambúrgueres',
+    price: 22,
+    description: 'Pão australiano, carne 150g, queijo cheddar, cebola caramelizada e molho da casa.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-old-brother-burguer',
+    name: 'Old Brother Burguer',
+    category: 'Hambúrgueres',
+    price: 28,
+    description: 'Pão australiano, carne 150g, queijo coalho, bacon e molho da casa.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-pineapple-old-burguer',
+    name: 'Pineapple Old Burguer',
+    category: 'Hambúrgueres',
+    price: 26,
+    description: 'Pão australiano, carne 150g, queijo prato, abacaxi, bacon, geleia de pimenta e molho da casa.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-batata-m',
+    name: 'Batata M 240g',
+    category: 'Batatas',
+    price: 10,
+    description: 'Porção de batata tamanho M com 240g.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-batata-g',
+    name: 'Batata G 300g',
+    category: 'Batatas',
+    price: 13,
+    description: 'Porção de batata tamanho G com 300g.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-batata-costela-sour-cream',
+    name: 'Batata com Costela e Sour Cream',
+    category: 'Batatas',
+    price: 22,
+    description: 'Batata com costela desfiada e sour cream.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-combo-old-prime',
+    name: 'Combo Old Prime',
+    category: 'Combos',
+    price: 42,
+    description: 'Cheddar Old Burguer, batata P e milk-shake.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-combo-old',
+    name: 'Combo Old',
+    category: 'Combos',
+    price: 32,
+    description: 'Cheddar Old Burguer, batata P e refrigerante lata.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-refri-lata',
+    name: 'Refri Lata',
+    category: 'Bebidas',
+    price: 6,
+    description: 'Refrigerante em lata.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-refrigerante-600ml',
+    name: 'Refrigerante 600ml',
+    category: 'Bebidas',
+    price: 7,
+    description: 'Refrigerante 600ml.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-refrigerante-1-litro',
+    name: 'Refrigerante 1 Litro',
+    category: 'Bebidas',
+    price: 10,
+    description: 'Refrigerante 1 litro.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-suco',
+    name: 'Suco',
+    category: 'Bebidas',
+    price: 7,
+    description: 'Suco da casa.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-milk-shake',
+    name: 'Milk-Shake',
+    category: 'Bebidas',
+    price: 15,
+    description: 'Milk-shake Old Brother.',
+    active: true,
+    available: true,
+    image: '',
+  },
+  {
+    id: 'ob-agua',
+    name: 'Água',
+    category: 'Bebidas',
+    price: 3,
+    description: 'Água mineral.',
+    active: true,
+    available: true,
+    image: '',
+  },
 ]
 
 async function api(path, options = {}) {
@@ -64,7 +281,16 @@ function Pill({ children, type='' }) { return <span className={`pill ${type}`}>{
 function Field({ label, children }) { return <label className="field"><span>{label}</span>{children}</label> }
 function Row({ a, b }) { return <div className="row"><span>{a}</span><b>{b}</b></div> }
 function KPI({ label, value }) { return <Card className="kpi"><span>{label}</span><strong>{value}</strong></Card> }
-function ProductImage({ product, className='' }) { return <div className={`food-img ${className}`} style={product?.image ? { backgroundImage:`linear-gradient(180deg,rgba(18,9,7,.05),rgba(18,9,7,.70)),url(${product.image})` } : undefined}>{!product?.image && '🍔'}</div> }
+function productEmoji(product = {}) {
+  const haystack = `${product.category || ''} ${product.name || ''}`.toLowerCase()
+  if (haystack.includes('batata')) return '🍟'
+  if (haystack.includes('bebida') || haystack.includes('refri') || haystack.includes('suco')) return '🥤'
+  if (haystack.includes('água') || haystack.includes('agua')) return '💧'
+  if (haystack.includes('milk')) return '🥤'
+  if (haystack.includes('combo') || haystack.includes('promo')) return '🍔🔥'
+  return '🍔'
+}
+function ProductImage({ product, className='' }) { return <div className={`food-img ${className}`} style={product?.image ? { backgroundImage:`linear-gradient(180deg,rgba(18,9,7,.05),rgba(18,9,7,.70)),url(${product.image})` } : undefined}>{!product?.image && productEmoji(product)}</div> }
 function downloadBlob(blob, name) { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 800) }
 
 function escapeHtml(value = '') {
@@ -149,6 +375,7 @@ export default function App() {
   const hashPath = window.location.hash?.replace(/^#/, '') || ''
   const path = hashPath || browserPath
   const tableRoute = path.match(/^\/cardapio\/mesa\/([^/]+)/)
+  const deliveryMenuRoute = path.match(/^\/cardapio\/delivery\/?$/)
 
   function clearSession() {
     localStorage.removeItem('ob.api.token')
@@ -209,6 +436,7 @@ export default function App() {
   useEffect(() => { loadAll() }, [user])
   useEffect(() => { const t = setInterval(() => loadAll({ silent:true }), tableRoute ? 1500 : POLL_MS); return () => clearInterval(t) }, [user, tableRoute?.[1]])
 
+  if (deliveryMenuRoute) return <CustomerDeliveryMenu products={products} />
   if (tableRoute) return <CustomerTablePage tableId={decodeURIComponent(tableRoute[1])} tables={tables} products={products} reload={() => loadAll({ silent:true })} />
   if (!user) return <Login onLogin={(data) => { localStorage.removeItem('ob.api.token'); localStorage.removeItem('ob.api.auth'); localStorage.setItem('ob.api.token', data.token); localStorage.setItem('ob.api.auth', JSON.stringify(data)); setError(''); setAuth(data); setUser(data.user); setPage(data.user.role === 'cozinha' ? 'cozinha' : data.user.role === 'caixa' ? 'caixa' : data.user.role === 'delivery' ? 'delivery' : data.user.role === 'estoque' ? 'estoque' : 'dashboard') }} />
 
@@ -222,7 +450,7 @@ export default function App() {
     {page === 'cozinha' && <KitchenPage {...common} />}
     {page === 'delivery' && <DeliveryPage {...common} />}
     {page === 'caixa' && <CashierPage {...common} />}
-    {page === 'cardapio' && <MenuPage products={products} />}
+    {page === 'cardapio' && <MenuPage products={products} deliveryMode />}
     {page === 'produtos' && <ProductsPage {...common} />}
     {page === 'estoque' && <StockPage {...common} />}
     {page === 'usuarios' && <UsersPage {...common} />}
@@ -332,11 +560,33 @@ function Shell({ children, user, page, setPage, onLogout }) {
 }
 
 function Dashboard({ tables, orders, stock, dashboard }) {
+  const [period, setPeriod] = useState('daily')
   const openOrders = orders.filter(o => !['finalizado','cancelado'].includes(o.status)).length
-  const total = Number(dashboard?.today?.total || 0)
-  const byOrigin = origins.map(o => dashboard?.by_origin?.find(x => x.origin === o) || { origin:o, total:0 })
-  const byPay = payMethods.map(p => dashboard?.by_payment?.find(x => x.method === p.value) || { method:p.value, total:0 })
-  return <div className="page"><div className="title"><p className="eyebrow">Visão geral</p><h1>Operação em tempo real</h1><p className="title-sub">Dados de mesas, pedidos, pagamentos e estoque conectados ao Supabase.</p></div><div className="kpis"><KPI label="Faturamento hoje" value={money(total)} /><KPI label="Pedidos em aberto" value={openOrders} /><KPI label="Mesas ocupadas" value={`${tables.filter(t=>t.status!=='livre').length}/${tables.length}`} /><KPI label="Estoque baixo" value={stock.filter(i => i.active && i.qty <= i.min).length} /></div><div className="grid2"><Card><h3>Faturamento por origem</h3>{byOrigin.map(x => <Row key={x.origin} a={originLabel(x.origin)} b={money(x.total)} />)}</Card><Card><h3>Faturamento por pagamento</h3>{byPay.map(x => <Row key={x.method} a={payMethods.find(p=>p.value===x.method)?.label || x.method} b={money(x.total)} />)}</Card></div><Card><h3>Pedidos em andamento</h3><div className="items-line">{orderStatuses.filter(s=>!['finalizado','cancelado'].includes(s)).map(s => <span key={s}>{statusLabel(s)}: {orders.filter(o=>o.status===s).length}</span>)}</div></Card></div>
+  const periods = dashboard?.periods || { daily: dashboard?.today || {} }
+  const periodData = periods?.[period] || {}
+  const byOrigin = origins.map(o => dashboard?.by_origin?.find(x => x.period === period && x.origin === o) || { origin:o, total:0, count:0 })
+  const byPay = payMethods.map(p => dashboard?.by_payment?.find(x => x.period === period && x.method === p.value) || { method:p.value, total:0, count:0 })
+  return <div className="page">
+    <div className="title"><p className="eyebrow">Visão geral</p><h1>Operação em tempo real</h1><p className="title-sub">Faturamento diário, semanal, mensal e total para controle completo da hamburgueria.</p></div>
+    <div className="kpis">
+      {periodOptions.map(opt => <KPI key={opt.value} label={opt.kpi} value={money(periods?.[opt.value]?.total || 0)} />)}
+    </div>
+    <div className="kpis compact-kpis">
+      <KPI label="Pedidos em aberto" value={openOrders} />
+      <KPI label="Mesas ocupadas" value={`${tables.filter(t=>t.status!=='livre').length}/${tables.length}`} />
+      <KPI label="Estoque baixo" value={stock.filter(i => i.active && i.qty <= i.min).length} />
+      <KPI label="Ticket médio do período" value={money(periodData.average_ticket || 0)} />
+    </div>
+    <Card>
+      <div className="section-head"><div><h3>Análise de faturamento</h3><p className="muted">Escolha o período para ver origem, forma de pagamento e quantidade de vendas.</p></div><select className="period-select" value={period} onChange={e=>setPeriod(e.target.value)}>{periodOptions.map(p=><option key={p.value} value={p.value}>{p.label}</option>)}</select></div>
+      <div className="dashboard-period-summary">
+        <Row a="Faturamento do período" b={money(periodData.total || 0)} />
+        <Row a="Vendas fechadas" b={Number(periodData.sales_count || 0)} />
+      </div>
+    </Card>
+    <div className="grid2"><Card><h3>Faturamento por origem</h3>{byOrigin.map(x => <Row key={x.origin} a={`${originLabel(x.origin)} • ${Number(x.count || 0)} ${pluralize(x.count, 'venda')}`} b={money(x.total)} />)}</Card><Card><h3>Faturamento por pagamento</h3>{byPay.map(x => <Row key={x.method} a={`${payMethods.find(p=>p.value===x.method)?.label || x.method} • ${Number(x.count || 0)} ${pluralize(x.count, 'venda')}`} b={money(x.total)} />)}</Card></div>
+    <Card><h3>Pedidos em andamento</h3><div className="items-line">{orderStatuses.filter(s=>!['finalizado','cancelado'].includes(s)).map(s => <span key={s}>{statusLabel(s)}: {orders.filter(o=>o.status===s).length}</span>)}</div></Card>
+  </div>
 }
 
 function TablesPage({ tables, products, user, reload }) {
@@ -466,15 +716,100 @@ function DeliveryPage({ products, reload }) {
 }
 
 function CashierPage({ tables, orders, reload }) {
-  const [method,setMethod]=useState('pix'), [discount,setDiscount]=useState(0), [service,setService]=useState(10), [busy,setBusy]=useState(false)
+  const [method,setMethod]=useState('pix'), [discount,setDiscount]=useState(0), [serviceEnabled,setServiceEnabled]=useState(false), [service,setService]=useState(10), [busy,setBusy]=useState(false)
+  const servicePercent = serviceEnabled ? Number(service || 0) : 0
   const external = orders.filter(o=>o.status==='aguardando_pagamento' && o.origin !== 'mesa')
   const payableTables = tables.filter(t=>t.session && (t.status==='pagamento' || t.session.orders?.some(o=>o.status==='aguardando_pagamento')))
   const closeExternal=async(id)=>{ setBusy(true); try{ await api('/payments/close-order',{method:'POST',body:JSON.stringify({order_id:id,method,discount:Number(discount||0)})}); await reload() } finally{ setBusy(false) } }
-  const closeTable=async(sessionId)=>{ setBusy(true); try{ await api('/payments/close-table-session',{method:'POST',body:JSON.stringify({table_session_id:sessionId,method,discount:Number(discount||0),service_fee_percent:Number(service||0)})}); await reload() } finally{ setBusy(false) } }
-  return <div className="page"><div className="title"><p className="eyebrow">Caixa</p><h1>Fechamento de contas</h1></div><Card><div className="toolbar"><select value={method} onChange={e=>setMethod(e.target.value)}>{payMethods.map(p=><option key={p.value} value={p.value}>{p.label}</option>)}</select><input type="number" value={discount} onChange={e=>setDiscount(e.target.value)} placeholder="Desconto"/><input type="number" value={service} onChange={e=>setService(e.target.value)} placeholder="Taxa serviço %"/></div></Card><div className="grid2"><Card><h3>Mesas aguardando pagamento</h3>{payableTables.map(t=><div className="pay-card" key={t.id}><div className="between"><div><strong>{t.name}</strong><span>{t.session.customerName} • {t.session.orders?.length||0} pedidos</span></div><b>{money((t.session.orders||[]).reduce((s,o)=>s+orderTotal(o),0))}</b></div><div className="actions compact"><Button variant="secondary" onClick={()=>printTableReceipt(t, method, discount, service)}>Imprimir conta</Button><Button disabled={busy} onClick={()=>closeTable(t.session.id)}>Fechar mesa</Button></div></div>)}{!payableTables.length && <p className="muted">Nenhuma mesa aguardando pagamento.</p>}</Card><Card><h3>Delivery / retirada / balcão</h3>{external.map(o=><div className="pay-card" key={o.id}><div className="between"><div><strong>#{orderNumber(o.order_number)} • {originLabel(o.origin)}</strong><span>{o.customer_name} • {o.customer_phone}</span></div><b>{money(orderTotal(o))}</b></div><div className="actions compact"><Button variant="secondary" onClick={()=>printOrder(o,'fechamento')}>Imprimir</Button><Button disabled={busy} onClick={()=>closeExternal(o.id)}>Fechar pedido</Button></div></div>)}{!external.length && <p className="muted">Nenhum pedido externo aguardando pagamento.</p>}</Card></div></div>
+  const closeTable=async(sessionId)=>{ setBusy(true); try{ await api('/payments/close-table-session',{method:'POST',body:JSON.stringify({table_session_id:sessionId,method,discount:Number(discount||0),service_fee_percent:servicePercent})}); await reload() } finally{ setBusy(false) } }
+  return <div className="page"><div className="title"><p className="eyebrow">Caixa</p><h1>Fechamento de contas</h1><p className="title-sub">Os 10% do garçom ficam desligados por padrão e só entram quando caixa, gerente ou admin ativar.</p></div><Card><div className="toolbar cashier-toolbar"><select value={method} onChange={e=>setMethod(e.target.value)}>{payMethods.map(p=><option key={p.value} value={p.value}>{p.label}</option>)}</select><input type="number" value={discount} onChange={e=>setDiscount(e.target.value)} placeholder="Desconto"/><label className="switch-line"><input type="checkbox" checked={serviceEnabled} onChange={e=>setServiceEnabled(e.target.checked)} /><span>Adicionar 10% do garçom</span></label><input type="number" value={service} onChange={e=>setService(e.target.value)} placeholder="Taxa serviço %" disabled={!serviceEnabled}/></div></Card><div className="grid2"><Card><h3>Mesas aguardando pagamento</h3>{payableTables.map(t=>{ const subtotal=(t.session.orders||[]).reduce((s,o)=>s+orderTotal(o),0); const serviceValue=subtotal*(servicePercent/100); const finalTotal=Math.max(subtotal+serviceValue-Number(discount||0),0); return <div className="pay-card" key={t.id}><div className="between"><div><strong>{t.name}</strong><span>{t.session.customerName} • {t.session.orders?.length||0} pedidos {servicePercent ? `• +${servicePercent}% garçom` : '• sem 10%'}</span></div><b>{money(finalTotal)}</b></div><div className="actions compact"><Button variant="secondary" onClick={()=>printTableReceipt(t, method, discount, servicePercent)}>Imprimir conta</Button><Button disabled={busy} onClick={()=>closeTable(t.session.id)}>Fechar mesa</Button></div></div>})}{!payableTables.length && <p className="muted">Nenhuma mesa aguardando pagamento.</p>}</Card><Card><h3>Delivery / retirada / balcão</h3>{external.map(o=><div className="pay-card" key={o.id}><div className="between"><div><strong>#{orderNumber(o.order_number)} • {originLabel(o.origin)}</strong><span>{o.customer_name} • {o.customer_phone}</span></div><b>{money(orderTotal(o))}</b></div><div className="actions compact"><Button variant="secondary" onClick={()=>printOrder(o,'fechamento')}>Imprimir</Button><Button disabled={busy} onClick={()=>closeExternal(o.id)}>Fechar pedido</Button></div></div>)}{!external.length && <p className="muted">Nenhum pedido externo aguardando pagamento.</p>}</Card></div></div>
 }
 
-function MenuPage({ products }) { const [q,setQ]=useState(''), [cat,setCat]=useState('todos'); const cats=[...new Set(products.map(p=>p.category).filter(Boolean))]; const list=products.filter(p=>p.active && (cat==='todos'||p.category===cat) && `${p.name} ${p.description}`.toLowerCase().includes(q.toLowerCase())); return <div className="page"><div className="title"><p className="eyebrow">Cardápio</p><h1>Cardápio digital</h1></div><div className="filters"><input placeholder="Buscar produto" value={q} onChange={e=>setQ(e.target.value)}/><select value={cat} onChange={e=>setCat(e.target.value)}><option value="todos">Todas categorias</option>{cats.map(c=><option key={c}>{c}</option>)}</select></div><div className="product-grid">{list.map(p=><Card key={p.id} className="menu-card"><ProductImage product={p}/><div className="menu-card-body"><Pill type="gold">{p.category}</Pill><h3>{p.name}</h3><p>{p.description}</p><b>{money(p.price)}</b></div></Card>)}</div></div> }
+function CustomerDeliveryMenu({ products }) {
+  return <main className="customer delivery-public"><div className="customer-head"><div><p className="eyebrow">Old Brother</p><h1>Cardápio Delivery</h1></div><Pill type="gold">WhatsApp {OLD_BROTHER_WHATSAPP_DISPLAY}</Pill></div><MenuPage products={products} deliveryMode publicMode /></main>
+}
+
+function MenuPage({ products, deliveryMode = false, publicMode = false }) {
+  const [q,setQ]=useState('')
+  const [cat,setCat]=useState('todos')
+  const [cart,setCart]=useState([])
+  const [form,setForm]=useState({customer_name:'',customer_phone:'',delivery_address:'',delivery_neighborhood:'',delivery_reference:'',delivery_fee:DEFAULT_DELIVERY_FEE,notes:''})
+  const [storePhone,setStorePhone]=useState(() => STORE_WHATSAPP || localStorage.getItem('ob.store.whatsapp') || '5591982358630')
+  const menuProducts = useMemo(() => {
+    const realProducts = (products || []).filter(p => p.active || p.available)
+    return realProducts.length ? realProducts : OLD_BROTHER_MENU_PRODUCTS
+  }, [products])
+  const cats=[...new Set(menuProducts.map(p=>p.category).filter(Boolean))]
+  const list=menuProducts.filter(p=>(p.active || p.available) && (cat==='todos'||p.category===cat) && `${p.name} ${p.description || ''}`.toLowerCase().includes(q.toLowerCase()))
+  const subtotal=totalItems(cart)
+  const deliveryFee=deliveryMode ? Number(form.delivery_fee || 0) : 0
+  const total=subtotal + deliveryFee
+
+  const add=(p)=>setCart(current=>{ const found=current.find(i=>i.product_id===p.id); return found ? current.map(i=>i.product_id===p.id ? {...i,quantity:i.quantity+1} : i) : [...current,{product_id:p.id,product_name:p.name,unit_price:Number(p.price),quantity:1}] })
+  const changeQty=(id,delta)=>setCart(current=>current.map(i=>i.product_id===id ? {...i,quantity:i.quantity+delta} : i).filter(i=>i.quantity>0))
+  const savePhone=()=>{ localStorage.setItem('ob.store.whatsapp', storePhone.replace(/\D/g,'')); alert('WhatsApp da loja salvo neste navegador.') }
+  const buildWhatsAppMessage=()=>{
+    const itemLines=cart.map((i,idx)=>`${idx+1}. ${i.quantity}x ${i.product_name} - ${money(i.quantity*i.unit_price)}`)
+    const deliveryLines=form.delivery_address || form.delivery_neighborhood || form.delivery_reference || form.customer_name || form.customer_phone ? [
+      '',
+      '*Dados para entrega:*',
+      form.customer_name ? `Nome: ${form.customer_name}` : '',
+      form.customer_phone ? `Telefone: ${form.customer_phone}` : '',
+      form.delivery_address ? `Endereço: ${form.delivery_address}` : '',
+      form.delivery_neighborhood ? `Bairro: ${form.delivery_neighborhood}` : '',
+      form.delivery_reference ? `Referência: ${form.delivery_reference}` : '',
+    ].filter(Boolean) : []
+    return [
+      'Olá, quero fazer um pedido no Old Brother:',
+      '',
+      '*Itens:*',
+      ...itemLines,
+      '',
+      `Subtotal: ${money(subtotal)}`,
+      `Taxa de entrega: ${money(deliveryFee)}`,
+      `Total: ${money(total)}`,
+      ...deliveryLines,
+      form.notes ? `\nObservação: ${form.notes}` : '',
+    ].filter(Boolean).join('\n')
+  }
+  const openWhatsApp=()=>{
+    if(!cart.length) return alert('Adicione pelo menos um item ao pedido.')
+    const phone=String(storePhone || '').replace(/\D/g,'') || '5591982358630'
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(buildWhatsAppMessage())}`,'_blank')
+  }
+
+  if (!deliveryMode) return <div className="page"><div className="title"><p className="eyebrow">Cardápio</p><h1>Cardápio digital Old Brother</h1><p className="title-sub">Produtos cadastrados no sistema. Se o banco ainda não tiver produtos, o cardápio oficial carregará como referência.</p></div><div className="filters"><input placeholder="Buscar produto" value={q} onChange={e=>setQ(e.target.value)}/><select value={cat} onChange={e=>setCat(e.target.value)}><option value="todos">Todas categorias</option>{cats.map(c=><option key={c}>{c}</option>)}</select></div><div className="product-grid">{list.map(p=><Card key={p.id} className="menu-card"><ProductImage product={p}/><div className="menu-card-body"><Pill type="gold">{p.category}</Pill><h3>{p.name}</h3><p>{p.description}</p><b>{money(p.price)}</b></div></Card>)}</div></div>
+
+  return <div className="page delivery-menu-page">
+    <section className="delivery-hero">
+      <div className="delivery-hero-copy">
+        <p className="eyebrow">Old Brother Hamburgueria</p>
+        <h1>Monte seu pedido</h1>
+        <p>Escolha os itens do cardápio, confira subtotal + taxa de entrega e envie tudo direto para o WhatsApp da loja.</p>
+        <div className="hero-badges"><Pill type="gold">WhatsApp {OLD_BROTHER_WHATSAPP_DISPLAY}</Pill><Pill>Feito na brasa</Pill></div>
+      </div>
+      <div className="delivery-hero-image" style={{ backgroundImage:`linear-gradient(180deg,rgba(18,9,7,.02),rgba(18,9,7,.76)),url(${MENU_ASSETS.combo65})` }} />
+    </section>
+
+    <div className="promo-strip">
+      <Card className="promo-card"><div className="promo-img" style={{ backgroundImage:`url(${MENU_ASSETS.combo95})` }} /><div><Pill type="gold">Promoção</Pill><h3>Combo Dia dos Namorados</h3><p>Combo especial por {money(95.90)}.</p></div></Card>
+      <Card className="promo-card"><div className="promo-img" style={{ backgroundImage:`url(${MENU_ASSETS.board})` }} /><div><Pill type="gold">Cardápio</Pill><h3>Hambúrgueres, batatas e bebidas</h3><p>Itens oficiais do cardápio Old Brother.</p></div></Card>
+    </div>
+
+    {!publicMode && <Card className="store-whatsapp-card"><div className="section-head"><div><h3>WhatsApp da loja</h3><p className="muted">Número oficial já configurado. Use DDI + DDD + número.</p></div><div className="store-phone-actions"><input value={storePhone} onChange={e=>setStorePhone(e.target.value)} placeholder="5591982358630"/><Button variant="secondary" onClick={savePhone}>Salvar</Button></div></div></Card>}
+
+    <div className="filters"><input placeholder="Buscar produto" value={q} onChange={e=>setQ(e.target.value)}/><select value={cat} onChange={e=>setCat(e.target.value)}><option value="todos">Todas categorias</option>{cats.map(c=><option key={c}>{c}</option>)}</select></div>
+
+    <div className="grid-main delivery-menu-layout">
+      <div className="product-grid delivery-product-grid">
+        {list.map(p=><Card key={p.id} className="menu-card delivery-product-card"><ProductImage product={p}/><div className="menu-card-body"><Pill type="gold">{p.category}</Pill><h3>{p.name}</h3><p>{p.description}</p><div className="between"><b>{money(p.price)}</b><Button onClick={()=>add(p)}>Adicionar</Button></div></div></Card>)}
+        {!list.length && <Card><p className="muted">Nenhum produto encontrado.</p></Card>}
+      </div>
+
+      <Card className="delivery-cart-card"><h3>Pedido via WhatsApp</h3><p className="muted">Destino: {OLD_BROTHER_WHATSAPP_DISPLAY}</p><div className="delivery-form"><Field label="Nome"><input value={form.customer_name} onChange={e=>setForm({...form,customer_name:e.target.value})} placeholder="Nome do cliente"/></Field><Field label="Telefone"><input value={form.customer_phone} onChange={e=>setForm({...form,customer_phone:e.target.value})} placeholder="Telefone"/></Field><Field label="Endereço"><input value={form.delivery_address} onChange={e=>setForm({...form,delivery_address:e.target.value})} placeholder="Rua, número"/></Field><Field label="Bairro"><input value={form.delivery_neighborhood} onChange={e=>setForm({...form,delivery_neighborhood:e.target.value})} placeholder="Bairro"/></Field><Field label="Referência"><input value={form.delivery_reference} onChange={e=>setForm({...form,delivery_reference:e.target.value})} placeholder="Ponto de referência"/></Field><Field label="Taxa de entrega"><input type="number" step="0.01" value={form.delivery_fee} onChange={e=>setForm({...form,delivery_fee:e.target.value})}/></Field><Field label="Observação"><textarea value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder="Ex: sem cebola, troco para R$ 100..."/></Field></div><div className="delivery-cart-items">{cart.map(i=><div className="delivery-cart-item" key={i.product_id}><div><strong>{i.product_name}</strong><span>{money(i.unit_price)} cada</span></div><div className="qty-actions"><button onClick={()=>changeQty(i.product_id,-1)}>-</button><b>{i.quantity}</b><button onClick={()=>changeQty(i.product_id,1)}>+</button></div></div>)}{!cart.length && <p className="muted">Adicione itens do cardápio para montar o pedido.</p>}</div><div className="order-summary"><Row a="Subtotal" b={money(subtotal)} /><Row a="Taxa de entrega" b={money(deliveryFee)} /><Row a="Total" b={money(total)} /></div><div className="actions"><Button disabled={!cart.length} onClick={openWhatsApp}>Enviar pedido no WhatsApp</Button>{cart.length>0 && <Button variant="secondary" onClick={()=>setCart([])}>Limpar carrinho</Button>}</div></Card>
+    </div>
+  </div>
+}
 
 function ProductsPage({ products, reload }) {
   const [categories,setCategories]=useState([]); const blank={name:'',category_id:'',price:0,description:'',available:true,prep_time_minutes:15,image_url:''}; const [form,setForm]=useState(blank), [editing,setEditing]=useState(null)
@@ -665,5 +1000,5 @@ function ReportsPage({ orders }) { const [from,setFrom]=useState(''), [to,setTo]
 function CustomerTablePage({ tableId, tables, products, reload }) {
   const table = tables.find(t=>String(t.id)===String(tableId)); const [name,setName]=useState(''), [people,setPeople]=useState(2), [starting,setStarting]=useState(false), [error,setError]=useState('')
   const start=async()=>{ if(!table||table.status!=='livre'||!name.trim()) return; setStarting(true); setError(''); try{ await api(`/tables/${tableId}/open-session`,{method:'POST',auth:false,body:JSON.stringify({customer_name:name,people})}); await reload() }catch(err){ setError(err.message) }finally{ setStarting(false) } }
-  return <main className="customer"><div className="customer-head"><div><p className="eyebrow">Old Brother</p><h1>Cardápio digital</h1></div><Pill type={table?.status}>{table ? statusLabel(table.status) : 'Carregando'}</Pill></div>{!table ? <Card>Carregando mesa...</Card> : <Card className="customer-start-card"><div className="section-head"><div><h2>{table.name}</h2><p className="muted">Inicie o atendimento para vincular esta mesa ao painel.</p></div><Pill type={table.status}>{statusLabel(table.status)}</Pill></div>{table.status==='livre' ? <><div className="customer-form-grid"><Field label="Seu nome"><input value={name} onChange={e=>setName(e.target.value)} /></Field><Field label="Pessoas"><input type="number" min="1" value={people} onChange={e=>setPeople(e.target.value)} /></Field><Button className="customer-submit" disabled={starting||!name.trim()} onClick={start}>{starting?'Iniciando...':'Iniciar atendimento'}</Button></div>{error&&<p className="error">{error}</p>}</> : <div className="notice"><b>Essa mesa já está em atendimento.</b><span>Chame um garçom se precisar de ajuda.</span></div>}</Card>}<MenuPage products={products}/></main>
+  return <main className="customer"><div className="customer-head"><div><p className="eyebrow">Old Brother</p><h1>Cardápio digital</h1></div><Pill type={table?.status}>{table ? statusLabel(table.status) : 'Carregando'}</Pill></div>{!table ? <Card>Carregando mesa...</Card> : <Card className="customer-start-card"><div className="section-head"><div><h2>{table.name}</h2><p className="muted">Inicie o atendimento para vincular esta mesa ao painel.</p></div><Pill type={table.status}>{statusLabel(table.status)}</Pill></div>{table.status==='livre' ? <><div className="customer-form-grid"><Field label="Seu nome"><input value={name} onChange={e=>setName(e.target.value)} /></Field><Field label="Pessoas"><input type="number" min="1" value={people} onChange={e=>setPeople(e.target.value)} /></Field><Button className="customer-submit" disabled={starting||!name.trim()} onClick={start}>{starting?'Iniciando...':'Iniciar atendimento'}</Button></div>{error&&<p className="error">{error}</p>}</> : <div className="notice"><b>Essa mesa já está em atendimento.</b><span>Chame um garçom se precisar de ajuda.</span></div>}</Card>}<MenuPage products={products} deliveryMode={false}/></main>
 }

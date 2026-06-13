@@ -1,27 +1,55 @@
 import ExcelJS from 'exceljs';
 import { query } from '../config/db.js';
 
+async function salesSummary(whereSql = 'true') {
+  const result = await query(
+    `select
+      coalesce(sum(total),0) as total,
+      count(*)::int as sales_count,
+      coalesce(avg(total),0) as average_ticket
+     from sales
+     where ${whereSql}`
+  );
+  return result.rows[0];
+}
+
 export async function dashboard(req, res, next) {
   try {
-    const sales = await query(
-      `select
-        coalesce(sum(total),0) as total,
-        count(*)::int as sales_count,
-        coalesce(avg(total),0) as average_ticket
-       from sales
-       where sale_date = current_date`
-    );
+    const [daily, weekly, monthly, total] = await Promise.all([
+      salesSummary('sale_date = current_date'),
+      salesSummary("sale_date >= date_trunc('week', current_date)::date and sale_date <= current_date"),
+      salesSummary("sale_date >= date_trunc('month', current_date)::date and sale_date <= current_date"),
+      salesSummary('true'),
+    ]);
 
     const byOrigin = await query(
-      `select origin, coalesce(sum(total),0) as total, count(*)::int as count
-       from sales where sale_date = current_date group by origin order by origin`
+      `select period, origin, coalesce(sum(total),0) as total, count(*)::int as count
+       from (
+         select 'daily' as period, origin, total from sales where sale_date = current_date
+         union all
+         select 'weekly' as period, origin, total from sales where sale_date >= date_trunc('week', current_date)::date and sale_date <= current_date
+         union all
+         select 'monthly' as period, origin, total from sales where sale_date >= date_trunc('month', current_date)::date and sale_date <= current_date
+         union all
+         select 'total' as period, origin, total from sales
+       ) x
+       group by period, origin
+       order by period, origin`
     );
 
     const byPayment = await query(
-      `select p.method, coalesce(sum(p.total),0) as total, count(*)::int as count
-       from payments p
-       where p.paid_at::date = current_date
-       group by p.method order by p.method`
+      `select period, method, coalesce(sum(total),0) as total, count(*)::int as count
+       from (
+         select 'daily' as period, p.method, p.total from payments p where p.paid_at::date = current_date
+         union all
+         select 'weekly' as period, p.method, p.total from payments p where p.paid_at::date >= date_trunc('week', current_date)::date and p.paid_at::date <= current_date
+         union all
+         select 'monthly' as period, p.method, p.total from payments p where p.paid_at::date >= date_trunc('month', current_date)::date and p.paid_at::date <= current_date
+         union all
+         select 'total' as period, p.method, p.total from payments p
+       ) x
+       group by period, method
+       order by period, method`
     );
 
     const openOrders = await query(
@@ -31,8 +59,11 @@ export async function dashboard(req, res, next) {
        group by status`
     );
 
+    const periods = { daily, weekly, monthly, total };
+
     return res.json({
-      today: sales.rows[0],
+      today: daily,
+      periods,
       by_origin: byOrigin.rows,
       by_payment: byPayment.rows,
       open_orders: openOrders.rows,

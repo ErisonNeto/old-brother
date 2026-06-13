@@ -1556,3 +1556,315 @@ p {
   }
 }
 
+
+/* Ajustes dashboard / caixa / cardápio delivery ---------------- */
+.compact-kpis .kpi {
+  min-height: 104px;
+}
+
+.period-select {
+  max-width: 220px;
+}
+
+.dashboard-period-summary {
+  display: grid;
+  gap: var(--s-2);
+  margin-top: var(--s-4);
+}
+
+.cashier-toolbar {
+  grid-template-columns: minmax(150px, 1fr) minmax(130px, 160px) minmax(210px, 260px) minmax(130px, 160px);
+  align-items: center;
+}
+
+.switch-line {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--panel-2);
+  padding: 0 14px;
+  color: var(--cream);
+  font-weight: 800;
+}
+
+.switch-line input {
+  width: 18px;
+  min-height: 18px;
+  accent-color: var(--gold);
+}
+
+.delivery-menu-layout {
+  grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.65fr);
+}
+
+.delivery-product-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.delivery-product-card .between {
+  align-items: end;
+}
+
+.delivery-product-card .btn {
+  width: auto;
+  white-space: nowrap;
+}
+
+.store-whatsapp-card {
+  margin-bottom: var(--s-4);
+}
+
+.store-phone-actions {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  gap: var(--s-3);
+  align-items: center;
+  min-width: min(100%, 460px);
+}
+
+.delivery-cart-card {
+  position: sticky;
+  top: 104px;
+}
+
+.delivery-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-3);
+  margin: var(--s-4) 0;
+}
+
+.delivery-form .field:nth-child(3),
+.delivery-form .field:nth-child(5),
+.delivery-form .field:nth-child(7) {
+  grid-column: 1 / -1;
+}
+
+.delivery-cart-items {
+  display: grid;
+  gap: var(--s-3);
+  margin: var(--s-4) 0;
+}
+
+.delivery-cart-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--panel-2);
+  padding: 12px;
+}
+
+.delivery-cart-item strong,
+.delivery-cart-item span {
+  display: block;
+}
+
+.delivery-cart-item span {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+.qty-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px;
+  background: rgba(0,0,0,.12);
+}
+
+.qty-actions button {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(220, 194, 154, 0.16);
+  color: var(--cream);
+  font-weight: 900;
+}
+
+.qty-actions b {
+  min-width: 22px;
+  text-align: center;
+  color: var(--gold);
+}
+
+@media (max-width: 1040px) {
+  .cashier-toolbar,
+  .delivery-menu-layout,
+  .delivery-product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .delivery-cart-card {
+    position: static;
+  }
+
+  .store-phone-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .period-select {
+    max-width: none;
+  }
+
+  .delivery-form {
+    grid-template-columns: 1fr;
+  }
+
+  .delivery-form .field:nth-child(3),
+  .delivery-form .field:nth-child(5),
+  .delivery-form .field:nth-child(7) {
+    grid-column: auto;
+  }
+
+  .delivery-product-card .between,
+  .delivery-cart-item {
+    align-items: stretch;
+    display: grid;
+  }
+
+  .delivery-product-card .btn,
+  .delivery-menu-page .actions .btn {
+    width: 100%;
+  }
+}
+
+/* Delivery público / catálogo Old Brother -------------------- */
+.delivery-public {
+  max-width: 1320px;
+}
+
+.delivery-hero {
+  min-height: 360px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.78fr);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at 18% 18%, rgba(220, 194, 154, 0.16), transparent 34%),
+    linear-gradient(135deg, rgba(33, 18, 12, 0.96), rgba(9, 4, 3, 0.98));
+  box-shadow: var(--shadow);
+}
+
+.delivery-hero-copy {
+  display: grid;
+  align-content: center;
+  gap: var(--s-4);
+  padding: clamp(24px, 5vw, 56px);
+}
+
+.delivery-hero-copy h1 {
+  margin: 0;
+  max-width: 640px;
+  font-size: clamp(42px, 7vw, 82px);
+  line-height: 0.92;
+  letter-spacing: -0.07em;
+}
+
+.delivery-hero-copy p:not(.eyebrow) {
+  max-width: 620px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.delivery-hero-image {
+  min-height: 360px;
+  background-position: center;
+  background-size: cover;
+}
+
+.promo-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-4);
+}
+
+.promo-card {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: var(--s-4);
+  align-items: center;
+  padding: var(--s-4);
+}
+
+.promo-card h3 {
+  margin: 10px 0 6px;
+}
+
+.promo-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.promo-img {
+  height: 150px;
+  border-radius: var(--radius-lg);
+  background-position: center;
+  background-size: cover;
+  border: 1px solid var(--line);
+}
+
+.delivery-menu-page .filters {
+  margin: var(--s-4) 0;
+}
+
+.delivery-menu-page .menu-card {
+  min-height: 360px;
+}
+
+.delivery-menu-page .food-img {
+  height: 160px;
+}
+
+@media (max-width: 1040px) {
+  .delivery-hero,
+  .promo-strip,
+  .promo-card {
+    grid-template-columns: 1fr;
+  }
+
+  .promo-img {
+    height: 220px;
+  }
+}
+
+@media (max-width: 760px) {
+  .delivery-public {
+    padding: var(--s-4);
+  }
+
+  .delivery-hero-copy {
+    padding: var(--s-6);
+  }
+
+  .delivery-hero-image,
+  .promo-img {
+    min-height: 260px;
+    height: 260px;
+  }
+
+  .customer-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
