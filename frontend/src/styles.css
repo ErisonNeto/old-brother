@@ -4368,3 +4368,109 @@ b,
     scroll-snap-align: start;
   }
 }
+
+/* V17 — correção dos botões de categoria do delivery
+   Evita sobreposição com a busca e com os cards quando a página rola. */
+.whatsmenu-page .wm-search-card {
+  position: relative;
+  top: auto;
+  z-index: 1;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.whatsmenu-page .wm-content-grid {
+  display: block;
+}
+
+.whatsmenu-page .wm-category-rail {
+  position: relative;
+  top: auto;
+  z-index: 2;
+  margin: 0 0 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.whatsmenu-page .wm-category-tabs {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+.whatsmenu-page .wm-category-tabs button {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(36, 20, 13, 0.12);
+  border-radius: 999px;
+  padding: 0 22px;
+  background: rgba(255, 250, 243, 0.96);
+  color: var(--ob-ink);
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px rgba(36, 20, 13, 0.06);
+}
+
+.whatsmenu-page .wm-category-tabs button.active,
+.whatsmenu-page .wm-category-tabs button:hover {
+  border-color: var(--ob-ink);
+  background: var(--ob-ink);
+  color: var(--ob-paper);
+}
+
+.whatsmenu-page .wm-menu-list,
+.whatsmenu-page .wm-menu-list-full {
+  position: relative;
+  z-index: 1;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.whatsmenu-page .wm-category-section:first-child {
+  margin-top: 0;
+}
+
+@media (max-width: 760px) {
+  .whatsmenu-page .wm-search-card {
+    margin-bottom: 14px;
+  }
+
+  .whatsmenu-page .wm-category-rail {
+    margin-bottom: 22px;
+  }
+
+  .whatsmenu-page .wm-category-tabs {
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 6px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .whatsmenu-page .wm-category-tabs::-webkit-scrollbar {
+    height: 0;
+  }
+
+  .whatsmenu-page .wm-category-tabs button {
+    min-height: 42px;
+    padding: 0 16px;
+    font-size: 14px;
+    scroll-snap-align: start;
+  }
+}
